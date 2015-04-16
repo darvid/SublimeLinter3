@@ -911,11 +911,22 @@ def find_python(version=None, script=None, module=None):
 
             persist.debug('find_python: system python =', path)
 
+    # use Anaconda's project-specific python interpreter setting
+    project_settings = sublime.active_window().project_data().get("settings", {})
+    project_python = project_settings.get("python_interpreter", None)
+
+    # the project-defined Python interpreter should supercede any other global
+    # python install
+    if project_python:
+        path = project_python
+
     if path and path != '<builtin>':
         available_version = get_python_version(path)
         persist.debug('find_python: available version =', repr(available_version))
 
-        if version_fulfills_request(available_version, requested_version):
+        # if python_interpreter is defined, ignore requested_version
+        if (version_fulfills_request(available_version, requested_version) or
+                project_python):
             if script:
                 script_path = find_python_script(path, script)
                 persist.debug('find_python: {!r} path = {}'.format(script, script_path))
