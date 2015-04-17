@@ -1044,8 +1044,13 @@ def find_python_script(python_path, script):
                 return out
         return which(script)
     else:
-        # On Windows, scripts may be .exe files or .py files in <python directory>/Scripts
-        scripts_path = os.path.join(os.path.dirname(python_path), 'Scripts')
+        dirname = os.path.dirname(python_path)
+        # if in a virtualenv, the python binary will already be in the Scripts
+        # directory
+        if os.path.basename(dirname) == 'Scripts':
+            scripts_path = dirname
+        else:
+            scripts_path = os.path.join(dirname, 'Scripts')
         script_path = os.path.join(scripts_path, script + '.exe')
 
         if os.path.exists(script_path):
